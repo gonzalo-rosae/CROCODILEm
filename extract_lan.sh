@@ -6,22 +6,24 @@
 # Download Data #
 ###############################
 set -e
+path="/home/v976/v976827/crocodile/CROCODILEm"
 echo "downloading wikipedia and wikidata dumps..."
-mkdir data/$1
-wikimapper download $1wiki-latest --dir data/$1/
+mkdir $path/data/$1
+wikimapper download $1wiki-latest --dir $path/data/$1/
 echo "Create wikidata database"
-wikimapper create $1wiki-latest --dumpdir data/$1/ --target data/$1/index_$1wiki-latest.db
+wikimapper create $1wiki-latest --dumpdir $path/data/$1/ --target $path/data/$1/index_$1wiki-latest.db
 echo "Extract abstracts"
-python -m wikiextractor.WikiExtractor data/$1/$1wiki-latest-page.sql.gz --links --output text/$1 --templates data/$1/templates.txt
+python -m wikiextractor.WikiExtractor $path/data/$1/$1wiki-latest-page.sql.gz --links --output $path/text/$1 --templates $path/data/$1/templates.txt
 echo "Fix first and last file: "
-echo `ls -1 text/$1/**/* | tail -1`
-echo "</data>" >> `ls -1 text/$1/**/* | tail -1`
-sed -i '$ d' text/$1/AA/wiki_00
-echo "</data>" >> text/$1/AA/wiki_00
+echo `ls -1 $path/text/$1/**/* | tail -1`
+echo "</data>" >> `ls -1 $path/text/$1/**/* | tail -1`
+sed -i '$ d' $path/text/$1/AA/wiki_00
+echo "</data>" >> $path/text/$1/AA/wiki_00
 echo "Create triplets db"
-python wikidata-triplets.py --input text/$1/ --output data/$1/wikidata-triples-$1-subj.db --input_triples wikidata/wikidata-triples.csv --format db
-echo "Extract triplets to out/$1"
-python multicore_run.py --input text/$1/ --output ./out/$1/ --input_triples data/$1/wikidata-triples-$1-subj.db --language $1
-echo "Clean triplets to out_clean/$1"
-# python filter_relations.py --folder_input out/$1
-python add_filter_relations.py --folder_input out/$1
+# EN LA LINEA DE ABAJO, LA CARPETA "wikidata" ??
+python wikidata-triplets.py --input $path/text/$1/ --output $path/data/$1/wikidata-triples-$1-subj.db --input_triples wikidata/wikidata-triples.csv --format db
+echo "Extract triplets to $path/out/$1"
+python multicore_run.py --input $path/text/$1/ --output $path//out/$1/ --input_triples $path/data/$1/wikidata-triples-$1-subj.db --language $1
+echo "Clean triplets to $path/out_clean/$1"
+# python filter_relations.py --folder_input $path/out/$1
+python add_filter_relations.py --folder_input $path/out/$1
